@@ -889,6 +889,35 @@ footer {
   .contact-grid { grid-template-columns: 1fr; gap: 2.5rem; }
   footer { padding: 1.25rem; flex-direction: column; }
 }
+.carousel {
+  position: relative;
+}
+
+.carousel-prev,
+.carousel-next {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 60px;
+  border: none;
+  background: rgba(0,0,0,0.05);
+  font-size: 32px;
+  cursor: pointer;
+}
+
+.carousel-prev {
+  left: 0;
+}
+
+.carousel-next {
+  right: 0;
+}
+
+.carousel-caption {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
 </style>
 </head>
 <body>
@@ -1047,16 +1076,22 @@ footer {
     <span class="tool-tag">Slack</span>
   </div>
 
-  <div style="border-radius:6px; overflow:hidden;">
-    <img
-      src="assets/Lead Gen.png"
-      style="width:100%; display:block;"
-      alt="Project Screenshot">
-  </div>
+<div class="carousel">
 
-  <p style="font-size:0.9rem; color:var(--muted); margin-top:0.75rem;">
-    AI-Powered Lead Capture and Qualification 
-  </p>
+  <img
+    src="assets/Lead Gen.png"
+    style="width:100%; display:block;"
+    alt="Project Screenshot">
+
+  <button class="carousel-prev">‹</button>
+
+  <button class="carousel-next">›</button>
+
+</div>
+
+<p class="carousel-caption">
+  Main workflow architecture
+</p>
 
 </div>
 
