@@ -639,7 +639,88 @@ h1 .hi { color: var(--accent); }
   fill: var(--faint);
   margin-left: 2px;
 }
+/* ── CAROUSEL ───────────────────────────────────── */
+.carousel {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg);
+  aspect-ratio: 16/9;
+}
 
+.carousel-track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.carousel-track img {
+  min-width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.9);
+  border: 1px solid var(--line-md);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: var(--text);
+  box-shadow: var(--shadow);
+  transition: background 0.15s, transform 0.15s;
+  z-index: 2;
+  line-height: 1;
+  padding: 0;
+}
+
+.carousel-btn:hover {
+  background: #fff;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.carousel-btn.prev { left: 0.65rem; }
+.carousel-btn.next { right: 0.65rem; }
+
+.carousel-dots {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.35rem;
+  z-index: 2;
+}
+
+.carousel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.6);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.carousel-dot.active {
+  background: #fff;
+}
+
+.carousel-caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.6rem;
+}
 /* ── SKILLS ─────────────────────────────────────── */
 .skills-board {
   display: grid;
@@ -1084,22 +1165,22 @@ footer {
     <span class="tool-tag">Slack</span>
   </div>
 
-<div class="carousel">
-
-  <img
-    src="assets/Lead Gen.png"
-    style="width:100%; display:block;"
-    alt="Project Screenshot">
-
-  <button class="carousel-prev">‹</button>
-
-  <button class="carousel-next">›</button>
-
+<div class="carousel" data-carousel>
+  <div class="carousel-track">
+    <img src="assets/Lead Gen.png" alt="Main Workflow architecture">
+    <img src="assets/Lead Gen 1.png alt="Jotform webhoook trigger">
+    <img src="assets/Lead Gen 3.png alt="Google Sheets logs">
+    <img src="assets/Lead Gen 7.png alt="Zoho CRM">
+    <img src="assets/Lead Gen 5.png alt="Venti Leads Slack exclusive channel">
+    <img src="assets/Lead Gen 6.png alt="Grande & Tall Leads Slack channel">
+    <img src="assets/Lead Gen 4.png alt="Gmail Personalized Draft">
+    
+  </div>
+  <button class="carousel-btn prev" aria-label="Previous">&#8249;</button>
+  <button class="carousel-btn next" aria-label="Next">&#8250;</button>
+  <div class="carousel-dots"></div>
 </div>
-
-<p class="carousel-caption">
-  Main workflow architecture
-</p>
+<p class="carousel-caption" data-caption="Main workflow architecture|Groq scoring output|Gmail draft result"></p>
 
 </div>
 
@@ -1128,16 +1209,18 @@ footer {
     <span class="tool-tag">Google Docs</span>
   </div>
 
-  <div style="border-radius:6px; overflow:hidden;">
-    <img
-      src="assets/AM optimizer.png"
-      style="width:100%; display:block;"
-      alt="Project Screenshot">
+<div class="carousel" data-carousel>
+  <div class="carousel-track">
+    <img src="assets/AM optimizer.png" alt="Main Pipeline Architecture">
+    <img src="assets/AM optimizer 1.png" alt="Google Sheets output">
+    <img src="assets/AM optimizer 3.png" alt="Google Docs output 1">
+    <img src="assets/AM optimizer 2.png" alt="Google Docs output 2">
   </div>
-
-  <p style="font-size:0.9rem; color:var(--muted); margin-top:0.75rem;">
-    Amazon Listing Optimizer 
-  </p>
+  <button class="carousel-btn prev" aria-label="Previous">&#8249;</button>
+  <button class="carousel-btn next" aria-label="Next">&#8250;</button>
+  <div class="carousel-dots"></div>
+</div>
+<p class="carousel-caption" data-caption="Amazon Listing Optimizer workflow|Generated listing output"></p>
 
 </div>
   </div>
@@ -1270,6 +1353,41 @@ document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 window.addEventListener('pointermove', e => {
   document.body.style.setProperty('--mx', `${e.clientX}px`);
   document.body.style.setProperty('--my', `${e.clientY}px`);
+});
+
+document.querySelectorAll('[data-carousel]').forEach(carousel => {
+  const track = carousel.querySelector('.carousel-track');
+  const imgs = track.querySelectorAll('img');
+  const dotsWrap = carousel.querySelector('.carousel-dots');
+  const captionEl = carousel.nextElementSibling;
+  const captions = captionEl && captionEl.dataset.caption
+    ? captionEl.dataset.caption.split('|')
+    : [];
+
+  let current = 0;
+  const total = imgs.length;
+
+  const dots = Array.from({ length: total }, (_, i) => {
+    const d = document.createElement('div');
+    d.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsWrap.appendChild(d);
+    return d;
+  });
+
+  function goTo(n) {
+    current = (n + total) % total;
+    track.style.transform = `translateX(-${current * 100}%)`;
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    if (captionEl && captions[current] !== undefined) {
+      captionEl.textContent = captions[current];
+    }
+  }
+
+  goTo(0);
+
+  carousel.querySelector('.prev').addEventListener('click', () => goTo(current - 1));
+  carousel.querySelector('.next').addEventListener('click', () => goTo(current + 1));
 });
 </script>
 
